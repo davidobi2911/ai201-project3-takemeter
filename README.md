@@ -207,18 +207,6 @@ I used AI assistance during evaluation analysis. After the notebook printed the 
 
 The useful pattern it surfaced was that the model often over-predicted `analysis` when a post contained surface soccer evidence, such as numbers, player names, team names, match context, or manager/player discussion. I verified that pattern myself by rereading the wrong predictions and checking the confusion matrix. I also discarded a weaker suggested pattern that the issue was mainly post length, because the errors included both short reactions and longer player-opinion comments.
 
-## Demo Video Plan
-
-The demo video should be 3-5 minutes and show:
-
-1. The dataset and label map in the notebook.
-2. Three to five posts classified by the fine-tuned model with predicted label and confidence visible.
-3. One correct prediction, with narration explaining why the prediction matches the label definition.
-4. One incorrect prediction, with narration explaining the failure mode.
-5. A brief walkthrough of this README evaluation report, especially the baseline comparison and confusion matrix.
-
-Recommended narration for the incorrect example: "The model predicts `analysis` for a short reaction that contains a statistic. This shows it learned that numbers often signal analysis, but it did not learn that analysis requires a structured argument."
-
 ## Reproducing The Artifact Set
 
 1. Upload `data/labeled_dataset.csv` in the Colab notebook.
