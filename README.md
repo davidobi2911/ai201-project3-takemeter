@@ -19,6 +19,14 @@ The classifier predicts one label per post or comment:
 - `hot_take`: A post or comment that makes a bold soccer claim with little support, vague support, or evidence used mainly to make the claim sound stronger.
 - `reaction`: A post or comment that mainly expresses immediate emotion about a goal, miss, referee decision, quote, transfer rumor, clip, or match result without making a broader supported argument.
 
+Label examples:
+
+| Label | Example 1 | Example 2 |
+|---|---|---|
+| `analysis` | "Arsenal struggled after the 60th minute because the fullbacks stopped inverting, which left Rice isolated against two midfield runners and made every turnover turn into a counter." | "That transfer fee makes sense only if United see him as a left-sided 8, because his progressive carries and pressing numbers fit that role better than playing him as a pure winger." |
+| `hot_take` | "That manager is a fraud and only wins because he has expensive players." | "This club has no ambition; every transfer window is just PR and panic." |
+| `reaction` | "What a finish. I still cannot believe he scored from there." | "That red card decision is ridiculous." |
+
 ## Dataset
 
 The dataset contains 210 public `r/soccer` examples saved in one CSV file, not pre-split. The notebook handles the 70% / 15% / 15% train, validation, and test split.
@@ -43,6 +51,20 @@ CSV columns:
 | `source_type` | Source type, usually `comment` |
 | `source_permalink` | Public old Reddit permalink |
 | `created_utc` | Reddit timestamp from the archive |
+
+## Data Collection And Labeling
+
+Examples came from public `r/soccer` comments collected through the PullPush Reddit archive API after direct Reddit JSON access returned a network-security block. I filtered out deleted, removed, bot-like, duplicate, extremely short, overly long, and low-information examples before creating the final CSV.
+
+The labeling process followed the definitions above. `analysis` required specific soccer reasoning or evidence, `hot_take` required a broad unsupported claim, and `reaction` required immediate emotion without a broader supported argument. Borderline examples were marked in the `notes` column so they could be reviewed later.
+
+Three difficult annotation examples:
+
+| Text | Possible Labels | Final Label | Decision |
+|---|---|---|---|
+| "Ten Hag didn't have a great hand at his disposal but I don't think he should be completely exonerated from crisisism because of that. His tactics were suicidal and in the xg table..." | `hot_take` or `analysis` | `analysis` | It uses heated language, but it also gives soccer-specific reasoning about tactics, xG table comparison, trophies, and squad context. |
+| "Again, Amad has 2 more g/a than Kulu who is supposedly your best player, in 8 less games. Amad is miles clear of Kulu..." | `analysis` or `hot_take` | `hot_take` | It cites goal/assist numbers, but the evidence is used mainly to support a sweeping "miles clear" and "crazy overrated" claim. |
+| "3 goals in 5 minutes on extra time. Comeback in a European quarter final. Lord Maguire scores the final goal. Absolute scenes." | `analysis` or `reaction` | `reaction` | It mentions match context, but the purpose is immediate excitement, not a structured tactical or statistical argument. |
 
 ## Model Setup
 
@@ -203,9 +225,11 @@ The implementation diverged from the spec in one important way: I planned for th
 
 ## AI Usage
 
-I used AI assistance during evaluation analysis. After the notebook printed the fine-tuned model's wrong predictions, I gave the misclassified examples to an AI tool and asked it to identify common patterns, such as repeated label confusions, short or low-information posts, sarcasm, and cases where soccer-specific details made a post look more analytical than it really was.
+I used AI assistance in two specific places.
 
-The useful pattern it surfaced was that the model often over-predicted `analysis` when a post contained surface soccer evidence, such as numbers, player names, team names, match context, or manager/player discussion. I verified that pattern myself by rereading the wrong predictions and checking the confusion matrix. I also discarded a weaker suggested pattern that the issue was mainly post length, because the errors included both short reactions and longer player-opinion comments.
+First, I used an AI tool during evaluation analysis. After the notebook printed the fine-tuned model's wrong predictions, I gave the misclassified examples to the tool and asked it to identify common patterns, such as repeated label confusions, short or low-information posts, sarcasm, and cases where soccer-specific details made a post look more analytical than it really was. The useful pattern it surfaced was that the model often over-predicted `analysis` when a post contained surface soccer evidence, such as numbers, player names, team names, match context, or manager/player discussion. I verified that pattern myself by rereading the wrong predictions and checking the confusion matrix. I also discarded a weaker suggested pattern that the issue was mainly post length, because the errors included both short reactions and longer player-opinion comments.
+
+Second, I used AI assistance to review the final README against the submission checklist and identify missing report details. That review flagged that the README needed the label examples, difficult annotation examples, and clearer data collection notes to stand on its own. I added those sections manually and kept the final wording tied to my actual dataset, notebook output, and evaluation results.
 
 ## Reproducing The Artifact Set
 
